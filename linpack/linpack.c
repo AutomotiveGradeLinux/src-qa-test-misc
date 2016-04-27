@@ -64,32 +64,43 @@ static REAL second   (void);
 static void *mempool;
 
 
-void main(void)
+int main(int argc, char *argv[]) {
 
-    {
     char    buf[80];
     int     arsize;
     long    arsize2d,memreq,nreps;
     size_t  malloc_arg;
 
-    while (1)
+    int count = 1;
+
+    while (count > 0)
         {
-        printf("Enter array size (q to quit) [200]:  ");
-        fgets(buf,79,stdin);
-        if (buf[0]=='q' || buf[0]=='Q')
-            break;
-        if (buf[0]=='\0' || buf[0]=='\n')
-            arsize=200;
-        else
-            arsize=atoi(buf);
-        arsize/=2;
+        /* printf("Enter array size (q to quit) [200]:  ");
+        * fgets(buf,79,stdin);
+        */
+	if (argc == 2) {
+		arsize = atoi(argv[1]);
+		printf("Size: %d\n", arsize);
+	}
+
+	/*if (buf[0]=='q' || buf[0]=='Q')
+        *    break;
+	*
+        *if (buf[0]=='\0' || buf[0]=='\n')
+        *    arsize=200;
+        */
+	else
+        // arsize=atoi(buf);
+           arsize=200;
+	
+	arsize/=2;
         arsize*=2;
-        if (arsize<10)
-            {
+        if (arsize<10) {
             printf("Too small.\n");
-            continue;
-            }
-        arsize2d = (long)arsize*(long)arsize;
+            //continue;
+	    break;
+        }
+	arsize2d = (long)arsize*(long)arsize;
         memreq=arsize2d*sizeof(REAL)+(long)arsize*sizeof(REAL)+(long)arsize*sizeof(int);
         printf("Memory required:  %ldK.\n",(memreq+512L)>>10);
         malloc_arg=(size_t)memreq;
@@ -109,7 +120,9 @@ void main(void)
             nreps*=2;
         free(mempool);
         printf("\n");
+	count--;
         }
+    return 0;
     }
 
 
