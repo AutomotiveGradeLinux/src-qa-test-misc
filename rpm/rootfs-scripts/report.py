@@ -17,7 +17,7 @@ def log_report(test_cases_values_and_status,THIS_TEST):
     else:
         test_set_status = "failed"
 
-    agl_test_report.write_date_to_json(test_set_status,THIS_TEST,summary,case_status)
+    agl_test_report.write_date_to_json(THIS_TEST,test_set_status,summary,case_status)
 
     #Package log file
     agl_test_report.log_compress(THIS_TEST)
