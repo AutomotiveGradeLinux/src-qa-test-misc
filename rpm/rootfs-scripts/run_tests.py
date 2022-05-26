@@ -2,53 +2,60 @@ import pytest
 import subprocess
 
 import plugins.agl_test_utils as agl_test_utils
-import plugins.agl_test_conf as agl_test_conf
 
-import rpm.parser as parser
-import rpm.report as report
+from plugins.agl_test_base import AGLBaseTest
+class RPMBase(AGLBaseTest):
+    def __init__(self):
+        super().__init__(name="rpm")
 
-WORK_DIR = agl_test_conf.WORK_DIR
-TMP_LOGS_DIR = agl_test_conf.TMP_LOGS_DIR
+    def run_case(self, case_id):
+        case_info = self.get_caseinfo_by_name(case_id)
+        if (case_info[1] == "TEST-PASS"):
+            case_info[2] = "passed"
+        else:
+            case_info[2] == "failed"
+        self.update_caseinfo_by_name(case_id, case_info)
+        assert case_info[2] == "passed"
 
-THIS_TEST = "rpm"
-test_cases_values_and_status = []
+    #Run test, and redirect the log into the file of rpm.log
+    def run_test_fun(self):
+        log_file = self.get_logfile()
+        cwd = self.get_workdir()
+        with open(log_file,'w') as log_f:
+            subprocess.run(['sh','rpm_test.sh'],cwd=cwd,stdout=log_f,stderr=log_f)
+        log_f.close()
 
-def setup_module():
+@pytest.fixture(scope='module')
+def testbase():
+    #init instance for test
+    instance = RPMBase()
+    #run test scripts
+    instance.run_test_fun()
+    #parser log
+    instance.log_process()
+
+    yield instance
+
+    #package log files and make report file
+    instance.log_report()
+
+def setup_module(testbase: RPMBase):
     agl_test_utils.find_cmd("rpm")
-    agl_test_utils.create_dir(THIS_TEST)
-    run_test_fun()
-    global test_cases_values_and_status
-    test_cases_values_and_status = parser.log_process(TMP_LOGS_DIR,THIS_TEST)
-
-#Run test, and redirect the log into the file of THIS_TEST.log  under TMP_LOGS_DIR/THIS_TEST/
-def run_test_fun():
-    log_file = agl_test_conf.get_log_file(THIS_TEST)
-    cwd = WORK_DIR + THIS_TEST + "/resource/"
-    with open(log_file,'w') as log_f:
-        subprocess.run(['sh','rpm_test.sh'],cwd=cwd,stdout=log_f,stderr=log_f)
-    log_f.close()
 
 @pytest.mark.oss_default
-def test_rpm01():
-    global test_cases_values_and_status
-    assert test_cases_values_and_status[1][1] == "TEST-PASS"
-    test_cases_values_and_status[1][2] = "passed"
+def test_rpm01(testbase: RPMBase):
+    name = "rpm01"
+    testbase.run_case(name)
 
 @pytest.mark.oss_default
-def test_rpm02():
-    global test_cases_values_and_status
-    assert test_cases_values_and_status[2][1] == "TEST-PASS"
-    test_cases_values_and_status[2][2] = "passed"
+def test_rpm02(testbase: RPMBase):
+    name = "rpm02"
+    testbase.run_case(name)
 
 @pytest.mark.oss_default
-def test_rpm03():
-    global test_cases_values_and_status
-    assert test_cases_values_and_status[3][1] == "TEST-PASS"
-    test_cases_values_and_status[3][2] = "passed"
-
-#Pack the log file and count the test results
-def teardown_module():
-    report.log_report(test_cases_values_and_status,THIS_TEST)
+def test_rpm03(testbase: RPMBase):
+    name = "rpm03"
+    testbase.run_case(name)
 
 if __name__ == '__main__':
     pytest.main("-s run_tests")
