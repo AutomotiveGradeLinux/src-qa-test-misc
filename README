@@ -1,0 +1,55 @@
+#Agl Test Suites
+
+The repository is used to store test scripts,
+and the source code of test sets without upstream.
+
+"qa-test-misc" could not be executed alone,
+it will be called by the agl-test framework.
+
+##Directory Structure
+
+test_name
+├── rootfs-scripts
+│   ├── __init__.py
+│   ├── parser.py
+│   ├── report.py
+│   ├── run_tests.py
+│   ├── criteria.json
+│   └── resource
+└── yocto-scripts
+    └── complie.py
+
+###rootfs-scripts:
+
+####__init__.py:
+
+Empty file, but it is a necessary file required by the framework.
+
+####parser.py:
+
+Script for parsing log.
+
+####report.py:
+
+Script for generating test reports.
+
+####run_tests.py:
+
+Script for running the test set.
+It defined all test cases.
+
+####criteria.json:
+
+Threshold file for benchmark testing.
+It can be omitted in functional testing.
+
+####resource:
+
+Source code of the test set without upstream.
+
+###yocto-scripts:
+
+####complie.py
+
+Script for compiling the test set which required by yocto.
+If the test set does not need to be compiled, this script can be omitted.
